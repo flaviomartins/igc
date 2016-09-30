@@ -17,15 +17,15 @@ if __name__ == '__main__':
     # user_pq = MaxPq()
     user_pq = deque()
 
-    seed_user = 'timeoutlisboa'
+    seed_user = 'fctnova'
     # user_pq.inc_priority(seed_user)
     user_pq.append(seed_user)
 
     while user_pq:
         username = user_pq.popleft()
+        visited_users.add(username)
         print "VISITING", "\t", str(len(visited_users)), "\t", username
 
-        visited_users.add(username)
         user = ig.get_user(username, OUTPUTDIR, cache='disk')
         if user is not None and 'user' in user:
             u = user['user']
@@ -73,4 +73,5 @@ if __name__ == '__main__':
             #     for i, node in enumerate(ig_user['chaining']['nodes']):
             #         chain_user = node['username']
             #         if chain_user not in visited_users:
-            #             user_pq.inc_priority(chain_user)
+            #             # user_pq.inc_priority(chain_user)
+            #             user_pq.append(chain_user)

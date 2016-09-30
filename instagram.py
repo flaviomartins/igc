@@ -236,7 +236,7 @@ def download_media(url, basedir, name):
             if r.status_code == 200:
                 with open(fullpath, 'wb') as f:
                     shutil.copyfileobj(r.raw, f)
-                print "media display" + fullpath + " fetched."
+                print "media display " + fullpath + " fetched."
         except ConnectionError:
             pass
         except ReadTimeout:
