@@ -45,15 +45,12 @@ def get_user(username, basedir, cache=None):
     path = '/'.join([basedir, USER_PATH, username[:1]])
     fullpath = '/'.join([path, username]) + '.json'
 
-    print "Loading user " + username + '...',
-
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
             with open(fullpath, 'r') as f:
                 user = json.load(f)
                 cached = True
-                print "from cache."
 
     if not cached:
         time.sleep(DELAY)
@@ -74,14 +71,11 @@ def get_user(username, basedir, cache=None):
                         f.write(r.content)
 
                 user = r.json()
-                print "fetched."
+                print "user " + username + " fetched."
         except ConnectionError:
             pass
         except ReadTimeout:
             pass
-
-    if user is None:
-        print "FAILED!"
 
     return user
 
@@ -91,15 +85,12 @@ def get_media(code, basedir, cache=None):
     path = '/'.join([basedir, MEDIA_PATH, code[:3]])
     fullpath = '/'.join([path, code]) + '.json'
 
-    print "Loading media " + code + '...',
-
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
             with open(fullpath, 'r') as f:
                 media = json.load(f)
                 cached = True
-                print "from cache."
 
     if not cached:
         time.sleep(DELAY)
@@ -120,14 +111,11 @@ def get_media(code, basedir, cache=None):
                         f.write(r.content)
 
                 media = r.json()
-                print "fetched."
+                print "media p " + code + " fetched."
         except ConnectionError:
             pass
         except ReadTimeout:
             pass
-
-    if media is None:
-        print "FAILED!"
 
     return media
 
@@ -137,15 +125,12 @@ def get_location(location_id, basedir, cache=None):
     path = '/'.join([basedir, LOCATION_PATH, location_id[:3]])
     fullpath = '/'.join([path, location_id]) + '.json'
 
-    print "Loading location " + location_id + '...',
-
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
             with open(fullpath, 'r') as f:
                 location = json.load(f)
                 cached = True
-                print "from cache."
 
     if not cached:
         time.sleep(DELAY)
@@ -166,14 +151,11 @@ def get_location(location_id, basedir, cache=None):
                         f.write(r.content)
 
                 location = r.json()
-                print "fetched."
+                print "location " + location_id + " fetched."
         except ConnectionError:
             pass
         except ReadTimeout:
             pass
-
-    if location is None:
-        print "FAILED!"
 
     return location
 
@@ -203,15 +185,12 @@ def get_ig_user(user_id, basedir, cache=None):
     path = '/'.join([basedir, IG_USER_PATH, user_id[:3]])
     fullpath = '/'.join([path, str(user_id)]) + '.json'
 
-    print "Loading ig_user " + str(user_id) + '...',
-
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
             with open(fullpath, 'r') as f:
                 ig_user = json.load(f)
                 cached = True
-                print "from cache."
 
     if not cached:
         time.sleep(DELAY)
@@ -231,14 +210,11 @@ def get_ig_user(user_id, basedir, cache=None):
                         f.write(r.content)
 
                 ig_user = r.json()
-                print "fetched."
+                print "ig_user " + str(user_id) + " fetched."
         except ConnectionError:
             pass
         except ReadTimeout:
             pass
-
-    if ig_user is None:
-        print "FAILED!"
 
     return ig_user
 
@@ -248,10 +224,9 @@ def download_media(url, basedir, name):
     path = '/'.join([basedir, MEDIA_DOWNLOAD_PATH, name[:3], name[3:6]])
     fullpath = '/'.join([path, filename])
 
-    print "Looking for " + fullpath + "...",
     if not os.path.exists(fullpath):
         try:
-            os.makedirs('/'.join([basedir, path]))
+            os.makedirs(path)
         except OSError:
             pass
 
@@ -260,12 +235,8 @@ def download_media(url, basedir, name):
             if r.status_code == 200:
                 with open(fullpath, 'wb') as f:
                     shutil.copyfileobj(r.raw, f)
-                print "downloaded."
-            else:
-                print "FAILED!"
+                print "media display" + fullpath + " fetched."
         except ConnectionError:
             pass
         except ReadTimeout:
             pass
-    else:
-        print "cached."

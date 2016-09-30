@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import instagram as ig
 from maxpq import MaxPq
@@ -8,19 +9,18 @@ DEFAULT_BASEDIR = 'out'
 
 
 if __name__ == '__main__':
-    visited = set()
-    pq = MaxPq()
+    visited_users = set()
+    user_pq = MaxPq()
 
     seed_user = 'ritacordeiro'
-    pq.inc_priority(seed_user)
+    user_pq.inc_priority(seed_user)
 
-    while pq:
-        username = pq.pop()
-        print "Visiting " + str(len(visited)) + ": " + username
+    while user_pq:
+        username = user_pq.pop()
+        print "Visiting " + str(len(visited_users)) + ": " + username
 
-        visited.add(username)
+        visited_users.add(username)
         user = ig.get_user(username, DEFAULT_BASEDIR, cache='disk')
-
         if user is not None and 'user' in user:
             u = user['user']
             u_id = u['id']
@@ -39,14 +39,11 @@ if __name__ == '__main__':
                             if p_loc is not None:
                                 if 'id' in p_loc:
                                     location = ig.get_location(p_loc['id'], DEFAULT_BASEDIR, cache='disk')
-                                    loc = location['location']
-                                    if 'name' in loc:
-                                        print "Named location: " + loc['name'] + " " + str(loc['lat']) + "," + str(loc['lng'])
 
             ig_user = ig.get_ig_user(u_id, DEFAULT_BASEDIR, cache='disk')
 
             if ig_user is not None and 'chaining' in ig_user:
                 for i, node in enumerate(ig_user['chaining']['nodes']):
                     chain_user = node['username']
-                    if chain_user not in visited:
-                        pq.inc_priority(chain_user)
+                    if chain_user not in visited_users:
+                        user_pq.inc_priority(chain_user)
