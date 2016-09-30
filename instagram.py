@@ -42,8 +42,8 @@ def get_location_url(location_id):
 
 def get_user(username, basedir, cache=None):
     user = None
-    path = '/'.join([basedir, USER_PATH, username[:1]])
-    fullpath = '/'.join([path, username]) + '.json'
+    path = os.path.join(basedir, os.path.join(USER_PATH, username[:1]))
+    fullpath = os.path.join(path, username) + '.json'
 
     cached = False
     if cache == 'disk':
@@ -82,8 +82,8 @@ def get_user(username, basedir, cache=None):
 
 def get_media(code, basedir, cache=None):
     media = None
-    path = '/'.join([basedir, MEDIA_PATH, code[:3]])
-    fullpath = '/'.join([path, code]) + '.json'
+    path = os.path.join(basedir, os.path.join(MEDIA_PATH, code[:3]))
+    fullpath = os.path.join(path, code) + '.json'
 
     cached = False
     if cache == 'disk':
@@ -122,8 +122,8 @@ def get_media(code, basedir, cache=None):
 
 def get_location(location_id, basedir, cache=None):
     location = None
-    path = '/'.join([basedir, LOCATION_PATH, location_id[:3]])
-    fullpath = '/'.join([path, location_id]) + '.json'
+    path = os.path.join(basedir, os.path.join(LOCATION_PATH, location_id[:3]))
+    fullpath = os.path.join(path, location_id) + '.json'
 
     cached = False
     if cache == 'disk':
@@ -182,8 +182,8 @@ def get_ig_user(user_id, basedir, cache=None):
     }'''
 
     ig_user = None
-    path = '/'.join([basedir, IG_USER_PATH, user_id[:3]])
-    fullpath = '/'.join([path, str(user_id)]) + '.json'
+    path = os.path.join(basedir, os.path.join(IG_USER_PATH, user_id[:3]))
+    fullpath = os.path.join(path, str(user_id)) + '.json'
 
     cached = False
     if cache == 'disk':
@@ -221,8 +221,8 @@ def get_ig_user(user_id, basedir, cache=None):
 
 def download_media(url, basedir, name):
     filename = name + '.jpg'
-    path = '/'.join([basedir, MEDIA_DOWNLOAD_PATH, name[:3], name[3:6]])
-    fullpath = '/'.join([path, filename])
+    path = os.path.join(basedir, os.path.join(os.path.join(MEDIA_DOWNLOAD_PATH, name[:3]), name[3:6]))
+    fullpath = os.path.join(path, filename)
 
     if not os.path.exists(fullpath):
         try:
