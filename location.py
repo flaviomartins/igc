@@ -1,5 +1,6 @@
 import fnmatch
 import os
+import sys
 import json
 import fiona
 
@@ -21,23 +22,28 @@ def whereisthis(lng, lat):
     return None
 
 
-with fiona.open(os.path.join(DATADIR, "PRT_adm_shp/PRT_adm1.shp")) as fiona_collection:
-    for shapefile_record in fiona_collection:
-        name = shapefile_record['properties']['NAME_1'] + ", " + shapefile_record['properties']['NAME_0']
-        shapes[name] = asShape(shapefile_record['geometry'])
-        shapes[name] = shapes[name].simplify(10e-6, preserve_topology=False)
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        print "Usage: location.py <basedir>"
+        sys.exit(0)
 
-matches = []
-for root, dirnames, filenames in os.walk('out/explore/locations/'):
-    for filename in fnmatch.filter(filenames, '*.json'):
-        matches.append(os.path.join(root, filename))
+    with fiona.open(os.path.join(DATADIR, "PRT_adm_shp/PRT_adm1.shp")) as fiona_collection:
+        for shapefile_record in fiona_collection:
+            name = shapefile_record['properties']['NAME_1'] + ", " + shapefile_record['properties']['NAME_0']
+            shapes[name] = asShape(shapefile_record['geometry'])
+            shapes[name] = shapes[name].simplify(10e-6, preserve_topology=False)
 
-for m in matches:
-    with open(m, 'r') as f:
-        data = json.load(f)
+    matches = []
+    for root, dirnames, filenames in os.walk(sys.argv[1]):
+        for filename in fnmatch.filter(filenames, '*.json'):
+            matches.append(os.path.join(root, filename))
 
-    loc = data['location']
-    if loc['lng'] is not None and loc['lat'] is not None:
-        place = whereisthis(loc['lng'], loc['lat'])
-        if place is not None:
-            print m, "\t", place.encode('utf-8'), "\t", loc['name'].encode('utf-8')
+    for m in matches:
+        with open(m, 'r') as f:
+            data = json.load(f)
+
+        loc = data['location']
+        if loc['lng'] is not None and loc['lat'] is not None:
+            place = whereisthis(loc['lng'], loc['lat'])
+            if place is not None:
+                print m, "\t", place.encode('utf-8'), "\t", loc['name'].encode('utf-8')
