@@ -4,21 +4,26 @@
 import os
 import instagram as ig
 from maxpq import MaxPq
+from collections import deque
 
 
 OUTPUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out')
 
 
 if __name__ == '__main__':
-    visited_users = set()
-    user_pq = MaxPq()
+    visited_locations = set()
 
-    seed_user = 'ritacordeiro'
-    user_pq.inc_priority(seed_user)
+    visited_users = set()
+    # user_pq = MaxPq()
+    user_pq = deque()
+
+    seed_user = 'timeoutlisboa'
+    # user_pq.inc_priority(seed_user)
+    user_pq.append(seed_user)
 
     while user_pq:
-        username = user_pq.pop()
-        print "Visiting " + str(len(visited_users)) + ": " + username
+        username = user_pq.popleft()
+        print "VISITING", "\t", str(len(visited_users)), "\t", username
 
         visited_users.add(username)
         user = ig.get_user(username, OUTPUTDIR, cache='disk')
@@ -28,23 +33,44 @@ if __name__ == '__main__':
 
             if 'media' in u:
                 u_media = u['media']
-                for i, node in enumerate(u_media['nodes']):
-                    ig.download_media(node['display_src'], OUTPUTDIR, node['id'])
-                    media = ig.get_media(node['code'], OUTPUTDIR, cache='disk')
+                for i, media in enumerate(u_media['nodes']):
+                    ig.download_media(media['display_src'], OUTPUTDIR, media['id'])
+                    pmedia = ig.get_media(media['code'], OUTPUTDIR, cache='disk')
 
-                    if media is not None:
-                        p = media['media']
+                    if pmedia is not None:
+                        p = pmedia['media']
 
                         if 'location' in p:
                             p_loc = p['location']
                             if p_loc is not None:
                                 if 'id' in p_loc:
                                     location = ig.get_location(p_loc['id'], OUTPUTDIR, cache='disk')
+                                    if location is not None and 'location' in location:
+                                        loc = location['location']
+                                        if loc['id'] not in visited_locations:
+                                            visited_locations.add(loc['id'])
+                                            print "LOCATION", "\t", loc['id'], "\t", loc['name']
 
-            ig_user = ig.get_ig_user(u_id, OUTPUTDIR, cache='disk')
+                    if 'comments' in p:
+                        p_comments = p['comments']
+                        for j, comment in enumerate(p_comments['nodes']):
+                            comment_user = comment['user']['username']
+                            if comment_user not in visited_users:
+                                # user_pq.inc_priority(comment_user)
+                                user_pq.append(comment_user)
 
-            if ig_user is not None and 'chaining' in ig_user:
-                for i, node in enumerate(ig_user['chaining']['nodes']):
-                    chain_user = node['username']
-                    if chain_user not in visited_users:
-                        user_pq.inc_priority(chain_user)
+                    if 'likes' in p:
+                        p_likes = p['likes']
+                        for j, comment in enumerate(p_likes['nodes']):
+                            like_user = comment['user']['username']
+                            if like_user not in visited_users:
+                                # user_pq.inc_priority(like_user)
+                                user_pq.append(like_user)
+
+            # ig_user = ig.get_ig_user(u_id, OUTPUTDIR, cache='disk')
+            #
+            # if ig_user is not None and 'chaining' in ig_user:
+            #     for i, node in enumerate(ig_user['chaining']['nodes']):
+            #         chain_user = node['username']
+            #         if chain_user not in visited_users:
+            #             user_pq.inc_priority(chain_user)

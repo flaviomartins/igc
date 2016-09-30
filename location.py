@@ -11,6 +11,7 @@ DATADIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 
 
 shapes = {}
+locations = []
 
 
 def whereisthis(lng, lat):
@@ -44,6 +45,11 @@ if __name__ == '__main__':
 
         loc = data['location']
         if loc['lng'] is not None and loc['lat'] is not None:
+            locations.append({'id': loc['id'], 'name': loc['name'], 'lng': loc['lng'], 'lat': loc['lat']})
+
             place = whereisthis(loc['lng'], loc['lat'])
             if place is not None:
                 print m, "\t", place.encode('utf-8'), "\t", loc['name'].encode('utf-8')
+
+    with open(os.path.join(DATADIR, "locations.json"), 'w') as f:
+        json.dump(locations, f, sort_keys=True, indent=4)

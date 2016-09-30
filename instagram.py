@@ -3,6 +3,7 @@ import time
 import json
 import requests
 from requests.exceptions import ConnectionError, ReadTimeout
+from requests.packages.urllib3.exceptions import ReadTimeoutError
 import shutil
 
 
@@ -111,7 +112,7 @@ def get_media(code, basedir, cache=None):
                         f.write(r.content)
 
                 media = r.json()
-                print "media p " + code + " fetched."
+                # print "media p " + code + " fetched."
         except ConnectionError:
             pass
         except ReadTimeout:
@@ -151,7 +152,7 @@ def get_location(location_id, basedir, cache=None):
                         f.write(r.content)
 
                 location = r.json()
-                print "location " + location_id + " fetched."
+                # print "location " + location_id + " fetched."
         except ConnectionError:
             pass
         except ReadTimeout:
@@ -210,7 +211,7 @@ def get_ig_user(user_id, basedir, cache=None):
                         f.write(r.content)
 
                 ig_user = r.json()
-                print "ig_user " + str(user_id) + " fetched."
+                # print "ig_user " + str(user_id) + " fetched."
         except ConnectionError:
             pass
         except ReadTimeout:
@@ -239,4 +240,6 @@ def download_media(url, basedir, name):
         except ConnectionError:
             pass
         except ReadTimeout:
+            pass
+        except ReadTimeoutError:
             pass
