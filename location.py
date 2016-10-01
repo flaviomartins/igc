@@ -41,15 +41,15 @@ if __name__ == '__main__':
 
     for m in matches:
         with open(m, 'r') as f:
-            data = json.load(f)
+            location = json.load(f)
 
-        loc = data['location']
-        if loc['lng'] is not None and loc['lat'] is not None:
-            locations.append({'id': loc['id'], 'name': loc['name'], 'lng': loc['lng'], 'lat': loc['lat']})
-
-            place = whereisthis(loc['lng'], loc['lat'])
-            if place is not None:
-                print m, "\t", place.encode('utf-8'), "\t", loc['name'].encode('utf-8')
+        if location is not None and 'location' in location:
+            loc = location['location']
+            if loc['lng'] is not None and loc['lat'] is not None:
+                locations.append({'id': loc['id'], 'name': loc['name'], 'lng': loc['lng'], 'lat': loc['lat']})
+                place = whereisthis(loc['lng'], loc['lat'])
+                if place is not None:
+                    print place.encode('utf-8'), "\t", loc['name'].encode('utf-8')
 
     with open(os.path.join(DATADIR, "locations.json"), 'w') as f:
         json.dump(locations, f, sort_keys=True, indent=4)
