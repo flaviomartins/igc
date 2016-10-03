@@ -112,7 +112,7 @@ def get_media(code, basedir, cache=None):
                         f.write(r.content)
 
                 media = r.json()
-                # print "media p " + code + " fetched."
+                print "media p " + code + " fetched."
         except ConnectionError:
             pass
         except ReadTimeout:
