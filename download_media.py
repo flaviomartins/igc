@@ -8,19 +8,28 @@ import json
 import instagram as ig
 
 
+class FoundFilenames(object):
+    def __init__(self, basedir):
+        self.basedir = basedir
+
+    def __iter__(self):
+        for root, dirnames, filenames in os.walk(basedir):
+            for filename in fnmatch.filter(filenames, '*.json'):
+                with open(os.path.join(root, filename)) as f:
+                    yield json.load(f)
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print "Usage: download_media.py <basedir> <outputdir>"
         sys.exit(0)
 
-    matches = []
-    for root, dirnames, filenames in os.walk(sys.argv[1]):
-        for filename in fnmatch.filter(filenames, '*.json'):
-            with open(os.path.join(root, filename), 'r') as f:
-                p = json.load(f)
+    basedir = sys.argv[1]
+    outputdir = sys.argv[2]
 
-            if p is not None and 'media' in p:
-                media = p['media']
+    for p in FoundFilenames(basedir):
+        if p is not None and 'media' in p:
+            media = p['media']
 
-                if 'id' in media and 'display_src' in media:
-                    ig.download_media(media['display_src'], sys.argv[2], media['id'])
+            if 'id' in media and 'display_src' in media:
+                ig.download_media(media['display_src'], sys.argv[2], media['id'])

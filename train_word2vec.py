@@ -5,6 +5,9 @@ import sys
 import gensim
 from nltk.tokenize import TweetTokenizer
 
+import logging
+logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+
 
 class SingleFileSentences(object):
     def __init__(self, filename):
