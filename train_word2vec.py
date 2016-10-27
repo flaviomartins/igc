@@ -28,12 +28,27 @@ class MultipleFileSentences(object):
         self.tokenizer = TweetTokenizer(preserve_case=False, reduce_len=False, strip_handles=False)
 
     def __iter__(self):
-        for root, dirnames, filenames in os.walk(self.basedir):
+        for root, dirnames, filenames in os.walk(os.path.join(self.basedir, 'p')):
             for filename in fnmatch.filter(filenames, '*.json'):
                 with open(os.path.join(root, filename)) as f:
                     data = json.load(f)
                     if 'media' in data and 'caption' in data['media']:
                         yield self.tokenizer.tokenize(data['media']['caption'])
+
+        for root, dirnames, filenames in os.walk(os.path.join(self.basedir, 'explore/locations')):
+            for filename in fnmatch.filter(filenames, '*.json'):
+                with open(os.path.join(root, filename)) as f:
+                    data = json.load(f)
+                    if 'location' in data:
+                        location = data['location']
+                        if 'media' in location and 'nodes' in location['media']:
+                            for i, media in enumerate(location['media']['nodes']):
+                                if 'caption' in media:
+                                    yield self.tokenizer.tokenize(media['caption'])
+                        if 'top_posts' in location and 'nodes' in location['top_posts']:
+                            for i, media in enumerate(location['top_posts']['nodes']):
+                                if 'caption' in media:
+                                    yield self.tokenizer.tokenize(media['caption'])
 
 
 if __name__ == '__main__':
