@@ -15,7 +15,7 @@ logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=lo
 class SingleFileSentences(object):
     def __init__(self, filename):
         self.filename = filename
-        self.tokenizer = TweetTokenizer(preserve_case=False, reduce_len=False, strip_handles=False)
+        self.tokenizer = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=True)
 
     def __iter__(self):
         for line in open(self.filename):
@@ -25,7 +25,7 @@ class SingleFileSentences(object):
 class MultipleFileSentences(object):
     def __init__(self, basedir):
         self.basedir = basedir
-        self.tokenizer = TweetTokenizer(preserve_case=False, reduce_len=False, strip_handles=False)
+        self.tokenizer = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=True)
 
     def __iter__(self):
         for root, dirnames, filenames in os.walk(os.path.join(self.basedir, 'p')):
