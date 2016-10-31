@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function, unicode_literals, division
+import io
 import fnmatch
 import os
 import sys
@@ -21,7 +23,7 @@ class SingleFileSentences(object):
         self.tokenizer = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=True)
 
     def __iter__(self):
-        for line in open(self.filename):
+        for line in io.open(self.filename, 'r', encoding='utf8'):
             yield self.tokenizer.tokenize(line)
 
 
@@ -41,14 +43,14 @@ class MultipleFileSentences(object):
     def __iter__(self):
         for root, dirnames, filenames in os.walk(os.path.join(self.basedir, 'p')):
             for filename in fnmatch.filter(filenames, '*.json'):
-                with open(os.path.join(root, filename)) as f:
+                with io.open(os.path.join(root, filename), 'r', encoding='utf8') as f:
                     data = self.my_json_load(f)
                     if 'media' in data and 'caption' in data['media']:
                         yield self.tokenizer.tokenize(data['media']['caption'])
 
         for root, dirnames, filenames in os.walk(os.path.join(self.basedir, 'explore/locations')):
             for filename in fnmatch.filter(filenames, '*.json'):
-                with open(os.path.join(root, filename)) as f:
+                with io.open(os.path.join(root, filename), 'r', encoding='utf8') as f:
                     data = self.my_json_load(f)
                     if 'location' in data:
                         location = data['location']
@@ -64,7 +66,7 @@ class MultipleFileSentences(object):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print "Usage: train_word2vec.py <inputfile> <modelname>"
+        print("Usage: train_word2vec.py <inputfile> <modelname>")
         sys.exit(0)
 
     inputfile = sys.argv[1]
