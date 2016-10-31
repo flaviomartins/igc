@@ -4,7 +4,10 @@
 import fnmatch
 import os
 import sys
-import json
+try:
+    import ujson as json
+except ImportError:
+    import json
 import fiona
 
 from shapely.geometry import Point, asShape

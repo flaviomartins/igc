@@ -3,7 +3,10 @@
 
 import os
 import time
-import json
+try:
+    import ujson as json
+except ImportError:
+    import json
 import requests
 from requests.exceptions import ConnectionError, ReadTimeout
 from requests.packages.urllib3.exceptions import ReadTimeoutError
