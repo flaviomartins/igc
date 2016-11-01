@@ -15,9 +15,10 @@ import fnmatch
 
 import plac
 try:
-    import ujson as json
+    import ujson
 except ImportError:
-    import json
+    import json as ujson
+import json
 from gensim.models import Word2Vec
 from nltk.tokenize import TweetTokenizer
 
@@ -34,11 +35,15 @@ class MultipleFileSentences(object):
 
     @staticmethod
     def my_json_load(f):
+        content = f.read()
         try:
-            data = json.load(f)
+            data = ujson.loads(content)
         except ValueError:
-            data = ''
-            logger.warn('DECODE FAIL: %s', f.name)
+            try:
+                data = json.loads(content)
+            except ValueError as ve:
+                data = ''
+                logger.warn('DECODE FAIL: %s %s', f.name, ve.message)
         return data
 
     def __iter__(self):
