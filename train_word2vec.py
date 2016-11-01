@@ -38,6 +38,7 @@ class MultipleFileSentences(object):
             data = json.load(f)
         except ValueError:
             data = ''
+            logger.warn('DECODE FAIL: %s', f.name)
         return data
 
     def __iter__(self):
