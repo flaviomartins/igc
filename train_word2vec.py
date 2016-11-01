@@ -3,9 +3,13 @@
 
 from __future__ import print_function, unicode_literals, division
 import io
-import fnmatch
+from multiprocessing import cpu_count
+import logging
+from os import path
 import os
-import sys
+import fnmatch
+
+import plac
 try:
     import ujson as json
 except ImportError:
@@ -13,23 +17,15 @@ except ImportError:
 from gensim.models import Word2Vec
 from nltk.tokenize import TweetTokenizer
 
-import logging
-logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-class SingleFileSentences(object):
-    def __init__(self, filename):
-        self.filename = filename
-        self.tokenizer = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=True)
-
-    def __iter__(self):
-        for line in io.open(self.filename, 'r', encoding='utf8'):
-            yield self.tokenizer.tokenize(line)
+PROGRESS_PER = 10000
 
 
 class MultipleFileSentences(object):
-    def __init__(self, basedir):
-        self.basedir = basedir
+    def __init__(self, directory):
+        self.directory = directory
         self.tokenizer = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=True)
 
     @staticmethod
@@ -41,16 +37,16 @@ class MultipleFileSentences(object):
         return data
 
     def __iter__(self):
-        for root, dirnames, filenames in os.walk(os.path.join(self.basedir, 'p')):
+        for root, dirnames, filenames in os.walk(path.join(self.directory, 'p')):
             for filename in fnmatch.filter(filenames, '*.json'):
-                with io.open(os.path.join(root, filename), 'r', encoding='utf8') as f:
+                with io.open(path.join(root, filename), 'r', encoding='utf8') as f:
                     data = self.my_json_load(f)
                     if 'media' in data and 'caption' in data['media']:
                         yield self.tokenizer.tokenize(data['media']['caption'])
 
-        for root, dirnames, filenames in os.walk(os.path.join(self.basedir, 'explore/locations')):
+        for root, dirnames, filenames in os.walk(path.join(self.directory, 'explore/locations')):
             for filename in fnmatch.filter(filenames, '*.json'):
-                with io.open(os.path.join(root, filename), 'r', encoding='utf8') as f:
+                with io.open(path.join(root, filename), 'r', encoding='utf8') as f:
                     data = self.my_json_load(f)
                     if 'location' in data:
                         location = data['location']
@@ -64,14 +60,32 @@ class MultipleFileSentences(object):
                                     yield self.tokenizer.tokenize(media['caption'])
 
 
-if __name__ == '__main__':
-    if len(sys.argv) < 3:
-        print("Usage: train_word2vec.py <inputfile> <modelname>")
-        sys.exit(0)
+@plac.annotations(
+    in_dir=("Location of input directory"),
+    out_loc=("Location of output file"),
+    n_workers=("Number of workers", "option", "n", int),
+    size=("Dimension of the word vectors", "option", "d", int),
+    window=("Context window size", "option", "w", int),
+    min_count=("Min count", "option", "m", int),
+    negative=("Number of negative samples", "option", "g", int),
+    nr_iter=("Number of iterations", "option", "i", int),
+)
+def main(in_dir, out_loc, negative=5, n_workers=cpu_count(), window=5, size=200, min_count=10, nr_iter=2):
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+    model = Word2Vec(
+        size=size,
+        window=window,
+        min_count=min_count,
+        workers=n_workers,
+        sample=1e-5,
+        negative=negative
+    )
+    sentences = MultipleFileSentences(in_dir)
+    model.build_vocab(sentences, progress_per=PROGRESS_PER)
+    model.train(sentences)
 
-    inputfile = sys.argv[1]
-    modelname = sys.argv[2]
-    sentences = MultipleFileSentences(inputfile)
-    model = Word2Vec(sentences, size=200, window=10, min_count=10,
-                     workers=8, iter=2, sorted_vocab=1)
-    model.save(modelname)
+    model.save(out_loc)
+
+
+if __name__ == '__main__':
+    plac.call(main)
