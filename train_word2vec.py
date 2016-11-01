@@ -78,7 +78,8 @@ def main(in_dir, out_loc, negative=5, n_workers=cpu_count(), window=5, size=200,
         min_count=min_count,
         workers=n_workers,
         sample=1e-5,
-        negative=negative
+        negative=negative,
+        iter=nr_iter
     )
     sentences = MultipleFileSentences(in_dir)
     model.build_vocab(sentences, progress_per=PROGRESS_PER)
