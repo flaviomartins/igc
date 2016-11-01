@@ -7,7 +7,6 @@ from multiprocessing import cpu_count
 import logging
 from os import path
 import os
-import fnmatch
 
 import plac
 try:
@@ -37,16 +36,16 @@ class MultipleFileSentences(object):
         return data
 
     def __iter__(self):
-        for root, dirnames, filenames in os.walk(path.join(self.directory, 'p')):
-            for filename in fnmatch.filter(filenames, '*.json'):
-                with io.open(path.join(root, filename), 'r', encoding='utf8') as f:
+        for fullfn in iter_dir(path.join(self.directory, 'p')):
+            if path.splitext(fullfn)[1] == ".json":
+                with io.open(fullfn, 'r', encoding='utf8') as f:
                     data = self.my_json_load(f)
                     if 'media' in data and 'caption' in data['media']:
                         yield self.tokenizer.tokenize(data['media']['caption'])
 
-        for root, dirnames, filenames in os.walk(path.join(self.directory, 'explore/locations')):
-            for filename in fnmatch.filter(filenames, '*.json'):
-                with io.open(path.join(root, filename), 'r', encoding='utf8') as f:
+        for fullfn in iter_dir(path.join(self.directory, 'explore/locations')):
+            if path.splitext(fullfn)[1] == ".json":
+                with io.open(fullfn, 'r', encoding='utf8') as f:
                     data = self.my_json_load(f)
                     if 'location' in data:
                         location = data['location']
@@ -58,6 +57,15 @@ class MultipleFileSentences(object):
                             for i, media in enumerate(location['top_posts']['nodes']):
                                 if 'caption' in media:
                                     yield self.tokenizer.tokenize(media['caption'])
+
+
+def iter_dir(loc):
+    for fn in os.listdir(loc):
+        if path.isdir(path.join(loc, fn)):
+            for sub in os.listdir(path.join(loc, fn)):
+                yield path.join(loc, fn, sub)
+        else:
+            yield path.join(loc, fn)
 
 
 @plac.annotations(
