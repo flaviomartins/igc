@@ -4,7 +4,10 @@
 from __future__ import print_function, unicode_literals, division
 import io
 from multiprocessing import cpu_count
+from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
 import logging
+from toolz import partition_all
+from itertools import chain
 from os import path
 # fails to import scandir < 3.5
 try:
@@ -25,49 +28,53 @@ from nltk.tokenize import TweetTokenizer
 logger = logging.getLogger(__name__)
 
 
-PROGRESS_PER = 10000
+TOKENIZER = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=True)
 
 
 class MultipleFileSentences(object):
-    def __init__(self, directory):
+    def __init__(self, directory, job_size=200000):
         self.directory = directory
-        self.tokenizer = TweetTokenizer(preserve_case=False, reduce_len=True, strip_handles=True)
-
-    @staticmethod
-    def my_json_load(f):
-        content = f.read()
-        try:
-            data = ujson.loads(content)
-        except ValueError:
-            try:
-                data = json.loads(content)
-            except ValueError as ve:
-                data = ''
-                logger.warn('DECODE FAIL: %s %s', f.name, ve.message)
-        return data
+        self.job_size = job_size
 
     def __iter__(self):
-        for root, dirnames, filenames in walk(path.join(self.directory, 'p')):
-            for filename in fnmatch.filter(filenames, '*.json'):
-                with io.open(path.join(root, filename), 'r', encoding='utf8') as f:
-                    data = self.my_json_load(f)
-                    if 'media' in data and 'caption' in data['media']:
-                        yield self.tokenizer.tokenize(data['media']['caption'])
+        with ProcessPoolExecutor(max_workers=cpu_count()) as executor:
+            jobs = partition_all(self.job_size, chain(iter_jsons(path.join(self.directory, 'p')),
+                                                      iter_jsons(path.join(self.directory, 'explore/locations'))))
+            for job in jobs:
+                for result in executor.map(process_file, job):
+                    if result is not None:
+                        yield result
 
-        for root, dirnames, filenames in walk(path.join(self.directory, 'explore/locations')):
-            for filename in fnmatch.filter(filenames, '*.json'):
-                with io.open(path.join(root, filename), 'r', encoding='utf8') as f:
-                    data = self.my_json_load(f)
-                    if 'location' in data:
-                        location = data['location']
-                        if 'media' in location and 'nodes' in location['media']:
-                            for i, media in enumerate(location['media']['nodes']):
-                                if 'caption' in media:
-                                    yield self.tokenizer.tokenize(media['caption'])
-                        if 'top_posts' in location and 'nodes' in location['top_posts']:
-                            for i, media in enumerate(location['top_posts']['nodes']):
-                                if 'caption' in media:
-                                    yield self.tokenizer.tokenize(media['caption'])
+
+def iter_jsons(directory):
+    for root, dirnames, filenames in walk(directory):
+        for filename in fnmatch.filter(filenames, '*.json'):
+            yield path.join(root, filename)
+
+
+def process_file(filepath):
+    with io.open(filepath, 'r', encoding='utf8') as f:
+        content = f.read()
+    try:
+        data = ujson.loads(content)
+    except ValueError:
+        try:
+            data = json.loads(content)
+        except ValueError as ve:
+            data = ''
+            logger.warn('DECODE FAIL: %s %s', f.name, ve.message)
+    if 'media' in data and 'caption' in data['media']:
+        return TOKENIZER.tokenize(data['media']['caption'])
+    if 'location' in data:
+        location = data['location']
+        if 'media' in location and 'nodes' in location['media']:
+            for i, media in enumerate(location['media']['nodes']):
+                if 'caption' in media:
+                    return TOKENIZER.tokenize(media['caption'])
+        if 'top_posts' in location and 'nodes' in location['top_posts']:
+            for i, media in enumerate(location['top_posts']['nodes']):
+                if 'caption' in media:
+                    return TOKENIZER.tokenize(media['caption'])
 
 
 @plac.annotations(
@@ -80,8 +87,9 @@ class MultipleFileSentences(object):
     min_count=("Min count", "option", "m", int),
     negative=("Number of negative samples", "option", "g", int),
     nr_iter=("Number of iterations", "option", "i", int),
+    job_size=("Job size in number of lines", "option", "j", int),
 )
-def main(in_dir, out_loc, skipgram=0, negative=5, n_workers=cpu_count(), window=10, size=200, min_count=10, nr_iter=2):
+def main(in_dir, out_loc, skipgram=0, negative=5, n_workers=cpu_count(), window=10, size=200, min_count=10, nr_iter=2, job_size=200000):
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     model = Word2Vec(
         size=size,
@@ -93,8 +101,8 @@ def main(in_dir, out_loc, skipgram=0, negative=5, n_workers=cpu_count(), window=
         negative=negative,
         iter=nr_iter
     )
-    sentences = MultipleFileSentences(in_dir)
-    model.build_vocab(sentences, progress_per=PROGRESS_PER)
+    sentences = MultipleFileSentences(in_dir, job_size)
+    model.build_vocab(sentences, progress_per=10000)
     model.train(sentences)
 
     model.save(out_loc)
