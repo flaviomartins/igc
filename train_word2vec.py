@@ -110,7 +110,7 @@ def process_file(filepath):
     nr_iter=("Number of iterations", "option", "i", int),
     job_size=("Job size in number of lines", "option", "j", int),
 )
-def main(in_dir, out_loc, skipgram=0, negative=5, n_workers=cpu_count(), window=10, size=200, min_count=10, nr_iter=2, job_size=5000):
+def main(in_dir, out_loc, skipgram=0, negative=5, n_workers=cpu_count(), window=10, size=200, min_count=10, nr_iter=2, job_size=1000):
     logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     model = Word2Vec(
         size=size,
