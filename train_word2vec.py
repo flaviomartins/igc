@@ -69,7 +69,7 @@ def process_job(job):
     for filepath in job:
         result = process_file(filepath)
         if result is not None:
-            results.append(result)
+            results = results + result
     return results
 
 
@@ -84,18 +84,20 @@ def process_file(filepath):
         except ValueError as ve:
             data = ''
             logger.warn('DECODE FAIL: %s %s', f.name, ve.message)
+    result = []
     if 'media' in data and 'caption' in data['media']:
-        return TOKENIZER.tokenize(data['media']['caption'])
+        result.append(TOKENIZER.tokenize(data['media']['caption']))
     if 'location' in data:
         location = data['location']
         if 'media' in location and 'nodes' in location['media']:
             for i, media in enumerate(location['media']['nodes']):
                 if 'caption' in media:
-                    return TOKENIZER.tokenize(media['caption'])
+                    result.append(TOKENIZER.tokenize(media['caption']))
         if 'top_posts' in location and 'nodes' in location['top_posts']:
             for i, media in enumerate(location['top_posts']['nodes']):
                 if 'caption' in media:
-                    return TOKENIZER.tokenize(media['caption'])
+                    result.append(TOKENIZER.tokenize(media['caption']))
+    return result
 
 
 @plac.annotations(
