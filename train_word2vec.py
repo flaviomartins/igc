@@ -75,7 +75,7 @@ def process_job(job):
 
 
 def process_file(filepath):
-    with io.open(filepath, 'r', encoding='utf8') as f:
+    with io.open(filepath, 'r', encoding='utf-8') as f:
         content = f.read()
     try:
         data = ujson.loads(content)
