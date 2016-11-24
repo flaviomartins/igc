@@ -4,7 +4,7 @@
 from __future__ import print_function, unicode_literals, division
 import io
 from multiprocessing import cpu_count
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+from concurrent.futures import ProcessPoolExecutor, as_completed
 import logging
 from toolz import partition_all
 from itertools import chain
@@ -23,7 +23,7 @@ except ImportError:
     import json as ujson
 import json
 from gensim.models import Word2Vec
-from gensim.utils import ClippedCorpus
+from gensim import utils
 from nltk.tokenize import TweetTokenizer
 
 logger = logging.getLogger(__name__)
@@ -46,17 +46,27 @@ class MultipleFileSentences(object):
             for j, job in enumerate(jobs):
                 futures.append(executor.submit(process_job, job))
                 if j % self.n_workers == 0:
-                    for f in as_completed(futures):
-                        results = f.result()
-                        for result in results:
-                            if result is not None:
-                                yield result
+                    for future in as_completed(futures):
+                        try:
+                            results = future.result()
+                        except Exception as exc:
+                            logger.error('generated an exception: %s', exc)
+                        else:
+                            logger.debug('job has %d sentences', len(results))
+                            for result in results:
+                                if result is not None:
+                                    yield result
                     futures = []
-            for f in as_completed(futures):
-                results = f.result()
-                for result in results:
-                    if result is not None:
-                        yield result
+            for future in as_completed(futures):
+                try:
+                    results = future.result()
+                except Exception as exc:
+                    logger.error('generated an exception: %s', exc)
+                else:
+                    logger.debug('job has %d sentences', len(results))
+                    for result in results:
+                        if result is not None:
+                            yield result
 
 
 def iter_jsons(directory):
@@ -70,12 +80,12 @@ def process_job(job):
     for filepath in job:
         result = process_file(filepath)
         if result is not None:
-            results = results + result
+            results += result
     return results
 
 
 def process_file(filepath):
-    with io.open(filepath, 'r', encoding='utf-8') as f:
+    with io.open(filepath, 'rt', encoding='utf-8') as f:
         content = f.read()
     try:
         data = ujson.loads(content)
@@ -127,7 +137,7 @@ def main(in_dir, out_loc, skipgram=0, negative=5, n_workers=cpu_count()-1, windo
         negative=negative,
         iter=nr_iter
     )
-    sentences = ClippedCorpus(MultipleFileSentences(in_dir, n_workers, job_size), max_docs=max_docs)
+    sentences = utils.ClippedCorpus(MultipleFileSentences(in_dir, n_workers, job_size), max_docs=max_docs)
     model.build_vocab(sentences, progress_per=10000)
     model.train(sentences)
 
