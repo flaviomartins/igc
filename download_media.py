@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from builtins import object
+
 import fnmatch
 import os
 import sys
@@ -24,7 +27,7 @@ class FoundFilenames(object):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print "Usage: download_media.py <basedir> <outputdir>"
+        print("Usage: download_media.py <basedir> <outputdir>")
         sys.exit(0)
 
     basedir = sys.argv[1]

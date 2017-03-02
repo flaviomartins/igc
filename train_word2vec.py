@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function, unicode_literals, division
+from __future__ import print_function
+from builtins import object
+
 import io
 from multiprocessing import cpu_count
 from concurrent.futures import ProcessPoolExecutor, as_completed

@@ -1,9 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from builtins import str
+
 import os
 import instagram as ig
-from maxpq import MaxPq
 from collections import deque
 
 
@@ -14,7 +16,6 @@ if __name__ == '__main__':
     visited_locations = set()
 
     visited_users = set()
-    # user_pq = MaxPq()
     user_pq = deque()
 
     seed_user = 'fctnova'
@@ -24,7 +25,7 @@ if __name__ == '__main__':
     while user_pq:
         username = user_pq.popleft()
         visited_users.add(username)
-        print "VISITING", "\t", str(len(visited_users)), "\t", username
+        print("VISITING", "\t", str(len(visited_users)), "\t", username)
 
         user = ig.get_user(username, OUTPUTDIR, cache='disk')
         if user is not None and 'user' in user:
@@ -49,7 +50,7 @@ if __name__ == '__main__':
                                         loc = location['location']
                                         if loc['id'] not in visited_locations:
                                             visited_locations.add(loc['id'])
-                                            print "LOCATION", "\t", loc['id'], "\t", loc['name']
+                                            print("LOCATION", "\t", loc['id'], "\t", loc['name'])
 
                     if 'comments' in p:
                         p_comments = p['comments']

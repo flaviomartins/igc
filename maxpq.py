@@ -1,24 +1,26 @@
-'''
+"""
 Created on Aug 6, 2011
 
 @author: xhaker
-'''
+"""
+from builtins import next
+from builtins import object
 
 import itertools
 from heapq import heappush, heappop
 
 
 class MaxPq(object):
-    '''
+    """
     classdocs
-    '''
+    """
 
     INVALID = 0     # mark an entry as deleted
 
     def __init__(self, *args, **kwds):
-        '''
+        """
         Constructor
-        '''
+        """
         self.pq = []                         # the priority queue list
         self.counter = itertools.count(1)    # unique sequence count
         self.task_finder = {}                # mapping of tasks to entries
@@ -55,7 +57,7 @@ class MaxPq(object):
 
     def get_priority(self, task):
         entry = self.task_finder[task]
-        return  entry[0]
+        return entry[0]
 
     def inc_priority(self, task, increment=1):
         if task not in self.task_finder:

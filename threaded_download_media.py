@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from builtins import object
+
 import fnmatch
 import os
 import sys
@@ -22,7 +25,7 @@ class FoundFilenames(object):
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print "Usage: threaded_download_media.py <basedir> <outputdir>"
+        print("Usage: threaded_download_media.py <basedir> <outputdir>")
         sys.exit(0)
 
     basedir = sys.argv[1]
@@ -34,4 +37,4 @@ if __name__ == '__main__':
 
             if 'id' in media and 'display_src' in media:
                 # ig.download_media(media['display_src'], sys.argv[2], media['id'])
-                print media['display_src']
+                print(media['display_src'])

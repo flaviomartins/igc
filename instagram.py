@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from builtins import str
+
 import os
 import time
 try:
@@ -78,7 +81,7 @@ def get_user(username, basedir, cache=None):
                         f.write(r.content)
 
                 user = r.json()
-                print "user " + username + " fetched."
+                print("user " + username + " fetched.")
         except ConnectionError:
             pass
         except ReadTimeout:
@@ -118,7 +121,7 @@ def get_media(code, basedir, cache=None):
                         f.write(r.content)
 
                 media = r.json()
-                print "media p " + code + " fetched."
+                print("media p " + code + " fetched.")
         except ConnectionError:
             pass
         except ReadTimeout:
@@ -242,7 +245,7 @@ def download_media(url, basedir, name):
             if r.status_code == 200:
                 with open(fullpath, 'wb') as f:
                     shutil.copyfileobj(r.raw, f)
-                print "media display " + fullpath + " fetched."
+                print("media display " + fullpath + " fetched.")
         except ConnectionError:
             pass
         except ReadTimeout:

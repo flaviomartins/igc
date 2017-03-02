@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+
 import fnmatch
 import os
 import sys
@@ -22,7 +24,7 @@ locations = []
 
 def whereisthis(lng, lat):
     point = Point(lng, lat)  # longitude, latitude
-    for k, v in shapes.iteritems():
+    for k, v in shapes.items():
         if point.within(v):
             return k
             break
@@ -31,7 +33,7 @@ def whereisthis(lng, lat):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print "Usage: location.py <basedir>"
+        print("Usage: location.py <basedir>")
         sys.exit(0)
 
     with fiona.open(os.path.join(DATADIR, "PRT_adm_shp/PRT_adm1.shp")) as fiona_collection:
@@ -55,7 +57,7 @@ if __name__ == '__main__':
                 locations.append({'id': loc['id'], 'name': loc['name'], 'lng': loc['lng'], 'lat': loc['lat']})
                 place = whereisthis(loc['lng'], loc['lat'])
                 if place is not None:
-                    print place.encode('utf-8'), "\t", loc['name'].encode('utf-8')
+                    print(place.encode('utf-8'), "\t", loc['name'].encode('utf-8'))
 
     with open(os.path.join(DATADIR, "locations.json"), 'w') as f:
         json.dump(locations, f, sort_keys=True, indent=4)

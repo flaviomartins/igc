@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
+from builtins import str
+from builtins import range
+
 import fnmatch
 import os
 import sys
@@ -32,7 +36,7 @@ visited_locations = set()
 
 def whereisthis(lng, lat):
     point = Point(lng, lat)  # longitude, latitude
-    for k, v in shapes.iteritems():
+    for k, v in shapes.items():
         if point.within(v):
             return k
             break
@@ -41,7 +45,7 @@ def whereisthis(lng, lat):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print "Usage: location.py <basedir>"
+        print("Usage: location.py <basedir>")
         sys.exit(0)
 
     with fiona.open(os.path.join(DATADIR, "PRT_adm_shp/PRT_adm1.shp")) as fiona_collection:
@@ -68,11 +72,11 @@ if __name__ == '__main__':
 
     while location_pq:
         loc_id = location_pq.pop()
-        print "VISITING", "\t", str(len(visited_locations)), "\t", loc_id
+        print("VISITING", "\t", str(len(visited_locations)), "\t", loc_id)
         location = ig.get_location(loc_id, OUTPUTDIR, cache='disk')
         if location is not None and 'location' in location:
             loc = location['location']
-            print place.encode('utf-8'), "\t", loc['name'].encode('utf-8')
+            print(place.encode('utf-8'), "\t", loc['name'].encode('utf-8'))
 
             if loc['id'] not in visited_locations:
                 visited_locations.add(loc['id'])
@@ -116,7 +120,7 @@ if __name__ == '__main__':
     while user_pq:
         username = user_pq.pop()
         visited_users.add(username)
-        print "VISITING", "\t", str(len(visited_users)), "\t", username
+        print("VISITING", "\t", str(len(visited_users)), "\t", username)
 
         user = ig.get_user(username, OUTPUTDIR, cache='disk')
         if user is not None and 'user' in user:
@@ -141,7 +145,7 @@ if __name__ == '__main__':
                                         loc = location['location']
                                         if loc['id'] not in visited_locations:
                                             visited_locations.add(loc['id'])
-                                            print "LOCATION", "\t", loc['id'], "\t", loc['name']
+                                            print("LOCATION", "\t", loc['id'], "\t", loc['name'])
 
                     # if 'comments' in p:
                     #     p_comments = p['comments']
