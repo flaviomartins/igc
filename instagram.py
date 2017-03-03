@@ -4,6 +4,7 @@
 from __future__ import print_function
 from builtins import str
 
+import io
 import logging
 import os
 import time
@@ -60,7 +61,7 @@ def get_user(username, basedir, cache=None):
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
-            with open(fullpath, 'rb') as f:
+            with io.open(fullpath, 'rt', encoding='utf-8') as f:
                 user = json.load(f)
                 cached = True
 
@@ -79,8 +80,8 @@ def get_user(username, basedir, cache=None):
                     except OSError:
                         pass
 
-                    with open(fullpath, 'wb') as f:
-                        f.write(r.content)
+                    with io.open(fullpath, 'wt', encoding='utf-8') as f:
+                        f.write(str(r.content))
 
                 user = r.json()
                 logger.info("user %s fetched.", username)
@@ -100,7 +101,7 @@ def get_media(code, basedir, cache=None):
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
-            with open(fullpath, 'rb') as f:
+            with io.open(fullpath, 'rt', encoding='utf-8') as f:
                 media = json.load(f)
                 cached = True
 
@@ -119,8 +120,8 @@ def get_media(code, basedir, cache=None):
                     except OSError:
                         pass
 
-                    with open(fullpath, 'wb') as f:
-                        f.write(r.content)
+                    with io.open(fullpath, 'wb', encoding='utf-8') as f:
+                        f.write(str(r.content))
 
                 media = r.json()
                 logger.info("media p %s fetched.", code)
@@ -140,7 +141,7 @@ def get_location(location_id, basedir, cache=None):
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
-            with open(fullpath, 'rb') as f:
+            with io.open(fullpath, 'rt', encoding='utf-8') as f:
                 location = json.load(f)
                 cached = True
 
@@ -159,8 +160,8 @@ def get_location(location_id, basedir, cache=None):
                     except OSError:
                         pass
 
-                    with open(fullpath, 'wb') as f:
-                        f.write(r.content)
+                    with io.open(fullpath, 'wb', encoding='utf-8') as f:
+                        f.write(str(r.content))
 
                 location = r.json()
                 # print "location " + location_id + " fetched."
@@ -200,7 +201,7 @@ def get_ig_user(user_id, basedir, cache=None):
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
-            with open(fullpath, 'rb') as f:
+            with io.open(fullpath, 'rt', encoding='utf-8') as f:
                 ig_user = json.load(f)
                 cached = True
 
@@ -218,8 +219,8 @@ def get_ig_user(user_id, basedir, cache=None):
                     except OSError:
                         pass
 
-                    with open(fullpath, 'wb') as f:
-                        f.write(r.content)
+                    with io.open(fullpath, 'wt', encoding='utf-8') as f:
+                        f.write(str(r.content))
 
                 ig_user = r.json()
                 # print "ig_user " + str(user_id) + " fetched."
@@ -245,7 +246,7 @@ def download_media(url, basedir, name):
         try:
             r = requests.get(url, stream=True, timeout=5)
             if r.status_code == 200:
-                with open(fullpath, 'wb') as f:
+                with io.open(fullpath, 'wb') as f:
                     shutil.copyfileobj(r.raw, f)
                 logger.info("media display %s fetched.", fullpath)
         except ConnectionError:
