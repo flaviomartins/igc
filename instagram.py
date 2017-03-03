@@ -4,6 +4,7 @@
 from __future__ import print_function
 from builtins import str
 
+import logging
 import os
 import time
 try:
@@ -15,6 +16,7 @@ from requests.exceptions import ConnectionError, ReadTimeout
 from requests.packages.urllib3.exceptions import ReadTimeoutError
 import shutil
 
+logger = logging.getLogger(__name__)
 
 PROTOCOL = 'https'
 BASE_URL = 'www.instagram.com'
@@ -81,7 +83,7 @@ def get_user(username, basedir, cache=None):
                         f.write(r.content)
 
                 user = r.json()
-                print("user " + username + " fetched.")
+                logger.info("user %s fetched.", username)
         except ConnectionError:
             pass
         except ReadTimeout:
@@ -121,7 +123,7 @@ def get_media(code, basedir, cache=None):
                         f.write(r.content)
 
                 media = r.json()
-                print("media p " + code + " fetched.")
+                logger.info("media p %s fetched.", code)
         except ConnectionError:
             pass
         except ReadTimeout:
@@ -245,7 +247,7 @@ def download_media(url, basedir, name):
             if r.status_code == 200:
                 with open(fullpath, 'wb') as f:
                     shutil.copyfileobj(r.raw, f)
-                print("media display " + fullpath + " fetched.")
+                logger.info("media display %s fetched.", fullpath)
         except ConnectionError:
             pass
         except ReadTimeout:

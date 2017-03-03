@@ -2,12 +2,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-from builtins import str
 
+import logging
 import os
 import instagram as ig
 from collections import deque
 
+logger = logging.getLogger(__name__)
 
 OUTPUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out')
 
@@ -25,7 +26,7 @@ if __name__ == '__main__':
     while user_pq:
         username = user_pq.popleft()
         visited_users.add(username)
-        print("VISITING", "\t", str(len(visited_users)), "\t", username)
+        logger.info("VISITING\t%d\t%s", len(visited_users), username)
 
         user = ig.get_user(username, OUTPUTDIR, cache='disk')
         if user is not None and 'user' in user:
@@ -50,7 +51,7 @@ if __name__ == '__main__':
                                         loc = location['location']
                                         if loc['id'] not in visited_locations:
                                             visited_locations.add(loc['id'])
-                                            print("LOCATION", "\t", loc['id'], "\t", loc['name'])
+                                            logger.info("LOCATION\t%s\t%s", loc['id'], loc['name'])
 
                     if 'comments' in p:
                         p_comments = p['comments']

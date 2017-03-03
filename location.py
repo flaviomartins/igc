@@ -3,6 +3,8 @@
 
 from __future__ import print_function
 
+import io
+import logging
 import fnmatch
 import os
 import sys
@@ -14,6 +16,7 @@ import fiona
 
 from shapely.geometry import Point, asShape
 
+logger = logging.getLogger(__name__)
 
 DATADIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 
@@ -48,7 +51,7 @@ if __name__ == '__main__':
             matches.append(os.path.join(root, filename))
 
     for m in matches:
-        with open(m, 'r') as f:
+        with io.open(m, 'rt', encoding='utf-8') as f:
             location = json.load(f)
 
         if location is not None and 'location' in location:
@@ -57,7 +60,7 @@ if __name__ == '__main__':
                 locations.append({'id': loc['id'], 'name': loc['name'], 'lng': loc['lng'], 'lat': loc['lat']})
                 place = whereisthis(loc['lng'], loc['lat'])
                 if place is not None:
-                    print(place.encode('utf-8'), "\t", loc['name'].encode('utf-8'))
+                    logger.info("%s\t%s", place, loc['name'])
 
-    with open(os.path.join(DATADIR, "locations.json"), 'w') as f:
+    with io.open(os.path.join(DATADIR, "locations.json"), 'w', encoding='utf-8') as f:
         json.dump(locations, f, sort_keys=True, indent=4)

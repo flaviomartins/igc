@@ -2,9 +2,10 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-from builtins import str
 from builtins import range
 
+import io
+import logging
 import fnmatch
 import os
 import sys
@@ -20,6 +21,7 @@ from pprint import pprint
 
 from shapely.geometry import Point, asShape
 
+logger = logging.getLogger(__name__)
 
 DATADIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data')
 OUTPUTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'out')
@@ -60,7 +62,7 @@ if __name__ == '__main__':
             matches.append(os.path.join(root, filename))
 
     for m in matches:
-        with open(m, 'r') as f:
+        with io.open(m, 'rt', encoding='utf-8') as f:
             location = json.load(f)
 
         if location is not None and 'location' in location:
@@ -72,11 +74,11 @@ if __name__ == '__main__':
 
     while location_pq:
         loc_id = location_pq.pop()
-        print("VISITING", "\t", str(len(visited_locations)), "\t", loc_id)
+        logger.info("VISITING\t%d\t%s", len(visited_locations), loc_id)
         location = ig.get_location(loc_id, OUTPUTDIR, cache='disk')
         if location is not None and 'location' in location:
             loc = location['location']
-            print(place.encode('utf-8'), "\t", loc['name'].encode('utf-8'))
+            logger.info("%s\t%s", place, loc['name'])
 
             if loc['id'] not in visited_locations:
                 visited_locations.add(loc['id'])
@@ -120,7 +122,7 @@ if __name__ == '__main__':
     while user_pq:
         username = user_pq.pop()
         visited_users.add(username)
-        print("VISITING", "\t", str(len(visited_users)), "\t", username)
+        logger.info("VISITING\t%d\t%s", len(visited_users), username)
 
         user = ig.get_user(username, OUTPUTDIR, cache='disk')
         if user is not None and 'user' in user:
@@ -145,7 +147,7 @@ if __name__ == '__main__':
                                         loc = location['location']
                                         if loc['id'] not in visited_locations:
                                             visited_locations.add(loc['id'])
-                                            print("LOCATION", "\t", loc['id'], "\t", loc['name'])
+                                            logger.info("LOCATION\t%s\t%s", loc['id'], loc['name'])
 
                     # if 'comments' in p:
                     #     p_comments = p['comments']
