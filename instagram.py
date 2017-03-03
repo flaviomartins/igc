@@ -60,7 +60,7 @@ def get_user(username, basedir, cache=None):
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
-            with open(fullpath, 'r') as f:
+            with open(fullpath, 'rb') as f:
                 user = json.load(f)
                 cached = True
 
@@ -79,7 +79,7 @@ def get_user(username, basedir, cache=None):
                     except OSError:
                         pass
 
-                    with open(fullpath, 'w') as f:
+                    with open(fullpath, 'wb') as f:
                         f.write(r.content)
 
                 user = r.json()
@@ -100,7 +100,7 @@ def get_media(code, basedir, cache=None):
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
-            with open(fullpath, 'r') as f:
+            with open(fullpath, 'rb') as f:
                 media = json.load(f)
                 cached = True
 
@@ -119,7 +119,7 @@ def get_media(code, basedir, cache=None):
                     except OSError:
                         pass
 
-                    with open(fullpath, 'w') as f:
+                    with open(fullpath, 'wb') as f:
                         f.write(r.content)
 
                 media = r.json()
@@ -140,7 +140,7 @@ def get_location(location_id, basedir, cache=None):
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
-            with open(fullpath, 'r') as f:
+            with open(fullpath, 'rb') as f:
                 location = json.load(f)
                 cached = True
 
@@ -159,7 +159,7 @@ def get_location(location_id, basedir, cache=None):
                     except OSError:
                         pass
 
-                    with open(fullpath, 'w') as f:
+                    with open(fullpath, 'wb') as f:
                         f.write(r.content)
 
                 location = r.json()
@@ -200,7 +200,7 @@ def get_ig_user(user_id, basedir, cache=None):
     cached = False
     if cache == 'disk':
         if os.path.exists(fullpath):
-            with open(fullpath, 'r') as f:
+            with open(fullpath, 'rb') as f:
                 ig_user = json.load(f)
                 cached = True
 
@@ -218,7 +218,7 @@ def get_ig_user(user_id, basedir, cache=None):
                     except OSError:
                         pass
 
-                    with open(fullpath, 'w') as f:
+                    with open(fullpath, 'wb') as f:
                         f.write(r.content)
 
                 ig_user = r.json()
