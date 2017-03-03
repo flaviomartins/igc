@@ -96,7 +96,7 @@ def process_file(filepath):
             data = json.loads(content)
         except ValueError as ve:
             data = ''
-            logger.warn('DECODE FAIL: %s %s', f.name, ve.message)
+            logger.warning('DECODE FAIL: %s %s', f.name, ve.message)
     result = []
     if 'media' in data and 'caption' in data['media']:
         result.append(TOKENIZER.tokenize(data['media']['caption']))
