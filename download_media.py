@@ -3,6 +3,7 @@
 
 from __future__ import print_function
 from builtins import object
+from builtins import zip
 
 import plac
 import gzip
