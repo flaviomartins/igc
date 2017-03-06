@@ -9,7 +9,6 @@ import plac
 import gzip
 import io
 
-from json import JSONDecodeError
 try:
     import ujson
 except ImportError:
@@ -79,8 +78,8 @@ def process_file(args):
     except ValueError:
         try:
             data = json.load(f)
-        except JSONDecodeError as jde:
-            logger.warning('DECODE FAIL: %s %s', filepath, jde.msg)
+        except ValueError as ve:
+            logger.warning('DECODE FAIL: %s %s', filepath, ve)
             return (False, filepath)
     if 'media' in data:
         media = data['media']

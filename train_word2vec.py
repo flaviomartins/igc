@@ -19,7 +19,6 @@ except ImportError:
 import fnmatch
 import plac
 
-from json import JSONDecodeError
 try:
     import ujson
 except ImportError:
@@ -96,9 +95,9 @@ def process_file(filepath):
     except ValueError:
         try:
             data = json.loads(content)
-        except JSONDecodeError as jde:
+        except ValueError as ve:
             data = ''
-            logger.warning('DECODE FAIL: %s %s', f.name, jde.msg)
+            logger.warning('DECODE FAIL: %s %s', f.name, ve)
     result = []
     if 'media' in data and 'caption' in data['media']:
         result.append(TOKENIZER.tokenize(data['media']['caption']))
