@@ -35,6 +35,8 @@ def whereisthis(lng, lat):
 
 
 if __name__ == '__main__':
+    logging.basicConfig(format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
+
     if len(sys.argv) < 2:
         print("Usage: location.py <basedir>")
         sys.exit(0)

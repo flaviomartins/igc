@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import print_function
-from builtins import str
 
 import io
 import logging
@@ -15,7 +14,6 @@ except ImportError:
 import requests
 from requests.exceptions import ConnectionError, ReadTimeout
 from requests.packages.urllib3.exceptions import ReadTimeoutError
-import shutil
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +79,7 @@ def get_user(username, basedir, cache=None):
                         pass
 
                     with io.open(fullpath, 'wt', encoding='utf-8') as f:
-                        f.write(str(r.content))
+                        f.write(r.text)
 
                 user = r.json()
                 logger.info("user %s fetched.", username)
@@ -102,7 +100,10 @@ def get_media(code, basedir, cache=None):
     if cache == 'disk':
         if os.path.exists(fullpath):
             with io.open(fullpath, 'rt', encoding='utf-8') as f:
-                media = json.load(f)
+                try:
+                    media = json.load(f)
+                except ValueError:
+                    logger.error('COULD NOT DECODE %s', fullpath)
                 cached = True
 
     if not cached:
@@ -120,8 +121,8 @@ def get_media(code, basedir, cache=None):
                     except OSError:
                         pass
 
-                    with io.open(fullpath, 'wb', encoding='utf-8') as f:
-                        f.write(str(r.content))
+                    with io.open(fullpath, 'wt', encoding='utf-8') as f:
+                        f.write(r.text)
 
                 media = r.json()
                 logger.info("media p %s fetched.", code)
@@ -160,11 +161,11 @@ def get_location(location_id, basedir, cache=None):
                     except OSError:
                         pass
 
-                    with io.open(fullpath, 'wb', encoding='utf-8') as f:
-                        f.write(str(r.content))
+                    with io.open(fullpath, 'wt', encoding='utf-8') as f:
+                        f.write(r.text)
 
                 location = r.json()
-                # print "location " + location_id + " fetched."
+                logger.info("location %s fetched.", location_id)
         except ConnectionError:
             pass
         except ReadTimeout:
@@ -220,10 +221,10 @@ def get_ig_user(user_id, basedir, cache=None):
                         pass
 
                     with io.open(fullpath, 'wt', encoding='utf-8') as f:
-                        f.write(str(r.content))
+                        f.write(r.text)
 
                 ig_user = r.json()
-                # print "ig_user " + str(user_id) + " fetched."
+                logger.info("ig_user %s fetched.", str(user_id))
         except ConnectionError:
             pass
         except ReadTimeout:
@@ -246,8 +247,9 @@ def download_media(url, basedir, name):
         try:
             r = requests.get(url, stream=True, timeout=5)
             if r.status_code == 200:
-                with io.open(fullpath, 'wb') as f:
-                    shutil.copyfileobj(r.raw, f)
+                with open(fullpath, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=128):
+                        f.write(chunk)
                 logger.info("media display %s fetched.", fullpath)
         except ConnectionError:
             pass
