@@ -18,11 +18,6 @@ except ImportError:
     from os import scandir, walk
 import fnmatch
 import plac
-
-try:
-    import ujson
-except ImportError:
-    import json as ujson
 import json
 
 from gensim.models import Word2Vec
@@ -91,13 +86,10 @@ def process_file(filepath):
     with io.open(filepath, 'rt', encoding='utf-8') as f:
         content = f.read()
     try:
-        data = ujson.loads(content)
-    except ValueError:
-        try:
-            data = json.loads(content)
-        except ValueError as ve:
-            data = ''
-            logger.warning('DECODE FAIL: %s %s', f.name, ve)
+        data = json.loads(content)
+    except ValueError as ve:
+        data = ''
+        logger.warning('DECODE FAIL: %s %s', f.name, ve)
     result = []
     if 'media' in data and 'caption' in data['media']:
         result.append(TOKENIZER.tokenize(data['media']['caption']))

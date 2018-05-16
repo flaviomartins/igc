@@ -9,10 +9,7 @@ import logging
 import fnmatch
 import os
 import sys
-try:
-    import ujson as json
-except ImportError:
-    import json
+import json
 import fiona
 import instagram as ig
 from maxpq import MaxPq

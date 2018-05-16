@@ -8,13 +8,7 @@ from builtins import zip
 import plac
 import gzip
 import io
-
-try:
-    import ujson
-except ImportError:
-    import json as ujson
 import json
-
 import logging
 import itertools
 import multiprocessing
@@ -74,13 +68,10 @@ def process_file(args):
         return (False, filepath)
 
     try:
-        data = ujson.load(f)
-    except ValueError:
-        try:
-            data = json.load(f)
-        except ValueError as ve:
-            logger.warning('DECODE FAIL: %s %s', filepath, ve)
-            return (False, filepath)
+        data = json.load(f)
+    except ValueError as ve:
+        logger.warning('DECODE FAIL: %s %s', filepath, ve)
+        return (False, filepath)
     if 'media' in data:
         media = data['media']
         if 'id' in media and 'display_src' in media:

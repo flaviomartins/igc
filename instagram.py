@@ -7,10 +7,7 @@ import io
 import logging
 import os
 import time
-try:
-    import ujson as json
-except ImportError:
-    import json
+import json
 import requests
 from requests.exceptions import ConnectionError, ReadTimeout
 from requests.packages.urllib3.exceptions import ReadTimeoutError

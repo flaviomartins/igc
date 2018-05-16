@@ -8,10 +8,7 @@ import logging
 import fnmatch
 import os
 import sys
-try:
-    import ujson as json
-except ImportError:
-    import json
+import json
 import fiona
 
 from shapely.geometry import Point, asShape
